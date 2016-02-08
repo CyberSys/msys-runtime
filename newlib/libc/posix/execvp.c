@@ -45,6 +45,7 @@ _DEFUN (execvp, (file, argv),
 {
   char *path = getenv ("PATH");
   char buf[MAXNAMLEN];
+  size_t file_len;
 
   /* If $PATH doesn't exist, just pass FILE on unchanged.  */
   if (!path)
@@ -71,8 +72,24 @@ _DEFUN (execvp, (file, argv),
   path_delim = cygwin_posix_path_list_p (path) ? ':' : ';';
 #endif
 
+  file_len = strlen (file);
   while (*path)
     {
+      /* Find the length of the path element */
+      char *path_ptr = strchr (path, PATH_DELIM);
+      size_t path_len;
+      if (path_ptr)
+        path_len = path_ptr - path;
+      else
+        path_len = strlen (path);
+      /* Check if the combined pathname fits into the buffer */
+      if (path_len + file_len + 2 > MAXNAMLEN) {
+        errno = ENAMETOOLONG;
+        path += path_len;
+        if (*path == PATH_DELIM)
+          path++;		/* skip over delim */
+        continue;
+      }
       strccpy (buf, path, PATH_DELIM);
       /* An empty entry means the current directory.  */
       if (*buf != 0 && buf[strlen(buf) - 1] != '/')

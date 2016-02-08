@@ -1,3 +1,8 @@
+2016.02.08  Cesar Strauss  <cestrauss@gmail.com>
+
+	* libc/posix/execvp.c (execvp): Check pathname size before copying it
+	into the buffer.
+
 2010.03.29  Charles Wilson  <mingw@cwilson.fastmail.fm>
 
 	* libc/include/sys/unistd.h: Declare fchdir and getdomainname.
